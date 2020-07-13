@@ -1,54 +1,36 @@
 <template>
-  <div class="home-container">
-    <el-container>
-      <el-header>Header</el-header>
+    <el-container class="home-container">
+      <el-header class="home-header">Header</el-header>
       <el-container>
-        <el-aside width="200px">Aside</el-aside>
-        <el-main>Main</el-main>
+        <el-aside class="home-aside" width="200px">Aside</el-aside>
+        <el-main class="home-main">Main</el-main>
       </el-container>
     </el-container>
-  </div>
 </template>
 
 <script>
-export default {};
+export default {
+    beforeCreate(){
+        // 判断有没有 token 如果没有跳转回登录页面
+        const token = localStorage.getItem('token')
+        if(!token){
+            this.$router.push({name: 'login'})
+        }
+    }
+};
 </script>
 
 <style >
 .home-container {
     height: 100%;
 }
-.el-header, .el-footer {
+.home-header {
     background-color: #B3C0D1;
-    color: #333;
-    text-align: center;
-    line-height: 60px;
-  }
-  
-  .el-aside {
+}
+.home-aside {
     background-color: #D3DCE6;
-    color: #333;
-    text-align: center;
-    line-height: 200px;
-  }
-  
-  .el-main {
+}
+.home-main {
     background-color: #E9EEF3;
-    color: #333;
-    text-align: center;
-    line-height: 160px;
-  }
-  
-  body > .el-container {
-    margin-bottom: 40px;
-  }
-  
-  .el-container:nth-child(5) .el-aside,
-  .el-container:nth-child(6) .el-aside {
-    line-height: 260px;
-  }
-  
-  .el-container:nth-child(7) .el-aside {
-    line-height: 320px;
-  }
+}
 </style>
