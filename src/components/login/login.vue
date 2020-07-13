@@ -8,7 +8,7 @@
       <el-form-item label="密码">
         <el-input v-model="formdata.password"></el-input>
       </el-form-item>
-      <el-button class="login-btn" type="primary">登录</el-button>
+      <el-button class="login-btn" type="primary" @click="postLogin">登录</el-button>
     </el-form>
   </div>
 </template>
@@ -22,6 +22,23 @@ export default {
         password: ""
       }
     };
+  },
+  methods: {
+      postLogin(){
+          this.$http.post('login', this.formdata).then(res => {
+            //   console.log(res)
+                const {meta:{msg,status}, data} = res.data
+                if(status === 200){
+                    // 成功 提示框 给本地存储传token值  跳转
+                    localStorage.setItem('token', data.token)
+                    this.$message.success(msg);
+                    this.$router.push({name: 'home'})
+                } else {
+                    // 提示框
+                    this.$message.error(msg);
+                }
+          })
+      }
   }
 };
 </script>
