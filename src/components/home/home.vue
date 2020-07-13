@@ -15,7 +15,7 @@
         </el-col>
         <el-col :span="2">
           <div class="grid-content bg-purple">
-            <a class="loginout" href="#">退出</a>
+            <a class="loginout" @click.prevent="loginOut" href="#">退出</a>
           </div>
         </el-col>
       </el-row>
@@ -24,18 +24,17 @@
     <el-container>
       <!-- 侧边导航栏 -->
       <el-aside class="home-aside" width="200px">
-        <el-menu
-
-          unique-opened="true"
-        >
-            <!-- 1 -->
+        <el-menu :router="true" :unique-opened="true">
+          <!-- 1 -->
           <el-submenu index="1">
             <template slot="title">
               <i class="el-icon-location"></i>
               <span>用户管理</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="1-1"><i class="el-icon-menu"></i>用户列表</el-menu-item>
+              <el-menu-item index="/users">
+                <i class="el-icon-menu"></i>用户列表
+              </el-menu-item>
             </el-menu-item-group>
           </el-submenu>
           <!-- 2 -->
@@ -45,8 +44,12 @@
               <span>权限管理</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="2-1"><i class="el-icon-menu"></i>角色列表</el-menu-item>
-              <el-menu-item index="2-2"><i class="el-icon-menu"></i>权限列表</el-menu-item>
+              <el-menu-item index="2-1">
+                <i class="el-icon-menu"></i>角色列表
+              </el-menu-item>
+              <el-menu-item index="2-2">
+                <i class="el-icon-menu"></i>权限列表
+              </el-menu-item>
             </el-menu-item-group>
           </el-submenu>
           <!-- 3 -->
@@ -56,9 +59,15 @@
               <span>商品管理</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="3-1"><i class="el-icon-menu"></i>商品列表</el-menu-item>
-              <el-menu-item index="3-2"><i class="el-icon-menu"></i>分类参数</el-menu-item>
-              <el-menu-item index="3-3"><i class="el-icon-menu"></i>商品分类</el-menu-item>
+              <el-menu-item index="3-1">
+                <i class="el-icon-menu"></i>商品列表
+              </el-menu-item>
+              <el-menu-item index="3-2">
+                <i class="el-icon-menu"></i>分类参数
+              </el-menu-item>
+              <el-menu-item index="3-3">
+                <i class="el-icon-menu"></i>商品分类
+              </el-menu-item>
             </el-menu-item-group>
           </el-submenu>
           <!-- 4 -->
@@ -68,7 +77,9 @@
               <span>订单管理</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="4-1"><i class="el-icon-menu"></i>订单列表</el-menu-item>
+              <el-menu-item index="4-1">
+                <i class="el-icon-menu"></i>订单列表
+              </el-menu-item>
             </el-menu-item-group>
           </el-submenu>
           <!-- 5 -->
@@ -78,13 +89,21 @@
               <span>数据统计</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="5-1"><i class="el-icon-menu"></i>选项1</el-menu-item>
-              <el-menu-item index="5-2"><i class="el-icon-menu"></i>选项2</el-menu-item>
+              <el-menu-item index="5-1">
+                <i class="el-icon-menu"></i>选项1
+              </el-menu-item>
+              <el-menu-item index="5-2">
+                <i class="el-icon-menu"></i>选项2
+              </el-menu-item>
             </el-menu-item-group>
           </el-submenu>
         </el-menu>
       </el-aside>
-      <el-main class="home-main">Main</el-main>
+
+      <!-- 主体内容 -->
+      <el-main class="home-main">
+          <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -96,6 +115,18 @@ export default {
     const token = localStorage.getItem("token");
     if (!token) {
       this.$router.push({ name: "login" });
+    }
+  },
+  methods: {
+    loginOut() {
+      if (confirm("确认退出吗")) {
+        // 1. 清除token
+        localStorage.clear();
+        // 2. 提示
+        this.$message.success("退出成功");
+        // 3. 跳到login组件
+        this.$router.push({ name: "login" });
+      }
     }
   }
 };
