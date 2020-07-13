@@ -24,40 +24,51 @@ export default {
     };
   },
   methods: {
-      postLogin(){
-          this.$http.post('login', this.formdata).then(res => {
-            //   console.log(res)
-                const {meta:{msg,status}, data} = res.data
-                if(status === 200){
-                    // 成功 提示框 给本地存储传token值  跳转
-                    localStorage.setItem('token', data.token)
-                    this.$message.success(msg);
-                    this.$router.push({name: 'home'})
-                } else {
-                    // 提示框
-                    this.$message.error(msg);
-                }
-          })
+      // postLogin(){
+          // this.$http.post('login', this.formdata).then(res => {
+          //   //   console.log(res)
+          //       const {meta:{msg,status}, data} = res.data
+          //       if(status === 200){
+          //           // 成功 提示框 给本地存储传token值  跳转
+          //           localStorage.setItem('token', data.token)
+          //           this.$message.success(msg);
+          //           this.$router.push({name: 'home'})
+          //       } else {
+          //           // 提示框
+          //           this.$message.error(msg);
+          //       }
+          // })
+      // }
+      async postLogin(){
+        const res = await this.$http.post('login', this.formdata)
+        const {meta:{msg,status}, data} = res.data
+        if(status === 200){
+            localStorage.setItem('token', data.token)
+            this.$message.success(msg);
+            this.$router.push({name: 'home'})
+        } else {
+            this.$message.error(msg);
+        }
       }
   }
 };
 </script>
 
 <style>
-.login-wrap{
-    height: 100%;
-    background-color: #324152;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.login-wrap {
+  height: 100%;
+  background-color: #324152;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.login-form{
-    width: 400px;
-    background-color: #fff;
-    border-radius: 5px;
-    padding: 30px;
+.login-form {
+  width: 400px;
+  background-color: #fff;
+  border-radius: 5px;
+  padding: 30px;
 }
-.login-btn{
-    width: 100%;
+.login-btn {
+  width: 100%;
 }
 </style>
