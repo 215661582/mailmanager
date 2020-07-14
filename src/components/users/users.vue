@@ -130,19 +130,19 @@
     <!-- 修改用户角色表单对话框 -->
     <el-dialog title="分配角色" :visible.sync="dialogFormVisibleRole">
       <el-form :model="form">
-        <el-form-item label="用户名" label-width="100px">{{ '当前用户角色' }}</el-form-item>
-
-        <el-form-item label="角 色" label-width="100px">
+        <el-form-item label="用户名:" label-width="100px">{{ currUserName }}</el-form-item>
+         {{currRoleId}}
+        <el-form-item label="角 色:" label-width="100px">
         <el-select v-model="currRoleId">
           <el-option label="请选择" :value="-1"></el-option>
-          <!-- <el-option label="区域二" value="beijing"></el-option> -->
+          <el-option v-for="item in nameRoleList" :key="item.id" :label="item.roleName" :value="item.id"></el-option>
         </el-select>
         </el-form-item>
 
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleRole = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisibleRole = false">确 定</el-button>
+        <el-button type="primary" @click="userRoleEdit()">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -187,8 +187,15 @@ export default {
         mobile: ""
       },
 
+      // 分配角色需要用到的数据
       // 角色id
-      currRoleId: -1
+      currRoleId: -1,
+      // 用户信息
+      currUserId: 0,
+      // 用户名
+      currUserName: '',
+      // 角色名字
+      nameRoleList: []
     };
   },
   created() {
@@ -196,9 +203,37 @@ export default {
   },
   methods: {
     // 显示分配角色对话框
-    showRoleUserDia(user){
-      console.log(user)
+    async showRoleUserDia(user){
+      // 显示对话框需要获取数据
+      // 1. 当前用户名
+      // 2. 当前用户信息
+      // 3. 获取角色列表 名字
+      // console.log(user)
+      // 获取用户名
+      this.currUserName = user.username
+      // 获取用户信息
+      const userInfo = await this.$http.get(`users/${user.id}`)
+      // console.log(userInfo)
+      this.currUserId = userInfo.data.data.id
+      this.currRoleId = userInfo.data.data.rid
+      // console.log(userInfo.data.data.id)
+      // 获取角色列表 名字
+      const nameList = await this.$http.get('roles')
+      // console.log(nameList)
+      this.nameRoleList = nameList.data.data
       this.dialogFormVisibleRole = true
+    },
+    // 设置用户角色
+    async userRoleEdit(){
+      const res = await this.$http.put(`users/${this.currUserId}/role`,{rid: this.currRoleId})
+      // console.log(res)
+      const {meta: {msg, status}} = res.data
+      if(status == 200 ){
+        this.$message.success(msg)
+        this.dialogFormVisibleRole = false
+      } else {
+        this.$message.warning(msg)
+      }
     },
 
     // 修改用户状态状态
@@ -250,6 +285,7 @@ export default {
 
     // 点击显示添加用户表单
     showAddUserDia() {
+      this.form = {}
       this.dialogFormVisibleAdd = true;
     },
 
