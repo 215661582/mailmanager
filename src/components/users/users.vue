@@ -9,10 +9,16 @@
     <!-- 搜索 -->
     <el-row>
       <el-col>
-        <el-input placeholder="请输入内容" clearable v-model="query" @change="keywordSerach" class="inputSearch">
+        <el-input
+          placeholder="请输入内容"
+          clearable
+          v-model="query"
+          @change="keywordSerach"
+          class="inputSearch"
+        >
           <el-button slot="append" icon="el-icon-search"></el-button>
         </el-input>
-        <el-button type="primary" @click="open">添加用户</el-button>
+        <el-button type="primary" @click="showAddUserDia">添加用户</el-button>
       </el-col>
     </el-row>
     <!-- 表格 -->
@@ -48,6 +54,28 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
     ></el-pagination>
+
+    <!-- 添加用户表单对话框 -->
+    <el-dialog title="添加用户" :visible.sync="dialogFormVisibleAdd">
+      <el-form :model="form">
+        <el-form-item label="用户名" label-width="100px">
+          <el-input v-model="form.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="密 码" label-width="100px">
+          <el-input v-model="form.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="邮 箱" label-width="100px">
+          <el-input v-model="form.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="电 话" label-width="100px">
+          <el-input v-model="form.name" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleAdd = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisibleAdd = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -75,7 +103,15 @@ export default {
       userlist: [],
 
       // 分页相关数据
-      total: -1
+      total: -1,
+
+      // 添加对话框的属性
+      dialogFormVisibleAdd: false,
+
+      // 添加用户的表单数据
+      form: {
+
+      }
     };
   },
   created() {
@@ -83,26 +119,26 @@ export default {
   },
   methods: {
     // 点击添加用户
-    open(){
-      
+    showAddUserDia() {
+      this.dialogFormVisibleAdd = true
     },
 
     // 当搜索框内容改变了
-    keywordSerach(){
-      this.getUserList()
-      this.query = ''
+    keywordSerach() {
+      this.getUserList();
+      this.query = "";
     },
 
     // 用户选择页数大小的时候触发
     handleSizeChange(val) {
-      this.pagesize = val
-      this.getUserList()
+      this.pagesize = val;
+      this.getUserList();
     },
 
     // 用户选择第几页的时候触发
     handleCurrentChange(val) {
-      this.pagenum = val
-      this.getUserList()
+      this.pagenum = val;
+      this.getUserList();
     },
 
     // 获取用户列表
