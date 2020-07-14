@@ -14,10 +14,18 @@ import router from './router'
 // 引入 axios
 import MyHttpServer from '@/plugins/http.js'
 
+// 引入 时间格式插件
+import moment from 'moment'
+
 Vue.use(ElementUI);
 Vue.use(MyHttpServer)
 
 Vue.config.productionTip = false
+
+// 全局过滤器
+Vue.filter('dateFormat',(v) => {
+  return moment(v).format('YYYY-MM-DD');
+})
 
 /* eslint-disable no-new */
 new Vue({
