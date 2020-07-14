@@ -38,7 +38,7 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" plain type="primary" @click="showEditUserBox" icon="el-icon-edit" circle></el-button>
+            <el-button size="mini" plain type="primary" @click="showEditUserDia(scope.row)" icon="el-icon-edit" circle></el-button>
             <el-button size="mini" plain type="danger" @click="showMessageBox(scope.row.id)"  icon="el-icon-delete" circle></el-button>
             <el-button size="mini" plain type="success" icon="el-icon-check" circle></el-button>
           </template>
@@ -79,11 +79,11 @@
       </div>
     </el-dialog>
 
-    <!-- 添加用户表单对话框 -->
+    <!-- 编辑用户表单对话框 -->
     <el-dialog title="修改用户信息" :visible.sync="dialogFormVisibleEdit">
       <el-form :model="form">
         <el-form-item label="用户名" label-width="100px">
-          <el-input v-model="form.username" autocomplete="off"></el-input>
+          <el-input v-model="form.username" disabled autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="邮 箱" label-width="100px">
           <el-input v-model="form.email" autocomplete="off"></el-input>
@@ -94,7 +94,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleEdit = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisibleEdit = false">确 定</el-button>
+        <el-button type="primary" @click="editUserInfo">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -173,7 +173,7 @@ export default {
         });
     },
 
-    // 修改状态
+    // 修改用户状态状态
     switchChange(id){
       this.userlist.some((item) => {
         if(item.id == id) {
@@ -183,7 +183,7 @@ export default {
               this.$message.success(msg)
               this.getUserList()
             } else{
-              this.$message.success(msg)
+              this.$message.warning(msg)
             }
           })
           return true
@@ -192,8 +192,28 @@ export default {
     },
 
     // 点击编辑显示编辑表单
-    showEditUserBox(){
+    showEditUserDia(user){
+      // 获取user数据
+      // console.log(user)
+      this.form = user
       this.dialogFormVisibleEdit = true
+    },
+
+    // 编辑用户信息
+    async editUserInfo(){
+      // id	用户 id	不能为空 参数是url参数:id
+      // email	邮箱	可以为空
+      // mobile	手机号	可以为空
+      // console.log(this.form)
+      const res = await this.$http.put(`users/${this.form.id}`,this.form)
+      // console.log(res)
+      const {meta: {msg, status}} = res.data
+      if(status == 200){
+        this.dialogFormVisibleEdit = false
+        this.$message.success(msg)
+      } else {
+        this.$message.warning(msg)
+      }
     },
 
     // 点击显示添加用户表单
