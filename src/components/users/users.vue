@@ -38,7 +38,7 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" plain type="primary" icon="el-icon-edit" circle></el-button>
+            <el-button size="mini" plain type="primary" @click="showEditUserBox" icon="el-icon-edit" circle></el-button>
             <el-button size="mini" plain type="danger" @click="showMessageBox(scope.row.id)"  icon="el-icon-delete" circle></el-button>
             <el-button size="mini" plain type="success" icon="el-icon-check" circle></el-button>
           </template>
@@ -78,6 +78,25 @@
         <el-button type="primary" @click="addUser">确 定</el-button>
       </div>
     </el-dialog>
+
+    <!-- 添加用户表单对话框 -->
+    <el-dialog title="修改用户信息" :visible.sync="dialogFormVisibleEdit">
+      <el-form :model="form">
+        <el-form-item label="用户名" label-width="100px">
+          <el-input v-model="form.username" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="邮 箱" label-width="100px">
+          <el-input v-model="form.email" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="电 话" label-width="100px">
+          <el-input v-model="form.mobile" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleEdit = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisibleEdit = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -107,8 +126,11 @@ export default {
       // 分页相关数据
       total: -1,
 
-      // 添加对话框的属性
+      // 添加用户对话框的属性
       dialogFormVisibleAdd: false,
+
+      // 编辑用户对话框的属性
+      dialogFormVisibleEdit: false,
 
       // 添加用户的表单数据
       form: {
@@ -116,7 +138,6 @@ export default {
         password: '',
         email: '',
         mobile: '',
-
       }
     };
   },
@@ -168,6 +189,11 @@ export default {
           return true
         }
       })
+    },
+
+    // 点击编辑显示编辑表单
+    showEditUserBox(){
+      this.dialogFormVisibleEdit = true
     },
 
     // 点击显示添加用户表单
