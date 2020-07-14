@@ -33,14 +33,43 @@
         </el-table-column>
         <el-table-column label="用户状态" width="180">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.mg_state" @change="switchChange(scope.row.id)" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+            <el-switch
+              v-model="scope.row.mg_state"
+              @change="switchChange(scope.row.id)"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+            ></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" plain type="primary" @click="showEditUserDia(scope.row)" icon="el-icon-edit" circle></el-button>
-            <el-button size="mini" plain type="danger" @click="showMessageBox(scope.row.id)"  icon="el-icon-delete" circle></el-button>
-            <el-button size="mini" plain type="success" icon="el-icon-check" circle></el-button>
+            <!-- 编辑按钮 -->
+            <el-button
+              size="mini"
+              plain
+              type="primary"
+              @click="showEditUserDia(scope.row)"
+              icon="el-icon-edit"
+              circle
+            ></el-button>
+            <!-- 删除按钮 -->
+            <el-button
+              size="mini"
+              plain
+              type="danger"
+              @click="showMessageBox(scope.row.id)"
+              icon="el-icon-delete"
+              circle
+            ></el-button>
+            <!-- 分配按钮 -->
+            <el-button
+              size="mini"
+              plain
+              type="success"
+              @click="showRoleUserDia(scope.row)"
+              icon="el-icon-setting"
+              circle
+            ></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -97,6 +126,25 @@
         <el-button type="primary" @click="editUserInfo">确 定</el-button>
       </div>
     </el-dialog>
+
+    <!-- 修改用户角色表单对话框 -->
+    <el-dialog title="分配角色" :visible.sync="dialogFormVisibleRole">
+      <el-form :model="form">
+        <el-form-item label="用户名" label-width="100px">{{ '当前用户角色' }}</el-form-item>
+
+        <el-form-item label="角 色" label-width="100px">
+        <el-select v-model="currRoleId">
+          <el-option label="请选择" :value="-1"></el-option>
+          <!-- <el-option label="区域二" value="beijing"></el-option> -->
+        </el-select>
+        </el-form-item>
+
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleRole = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisibleRole = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -126,121 +174,137 @@ export default {
       // 分页相关数据
       total: -1,
 
-      // 添加用户对话框的属性
+      // 用户对话框的属性
       dialogFormVisibleAdd: false,
-
-      // 编辑用户对话框的属性
       dialogFormVisibleEdit: false,
+      dialogFormVisibleRole: false,
 
       // 添加用户的表单数据
       form: {
-        username: '',
-        password: '',
-        email: '',
-        mobile: '',
-      }
+        username: "",
+        password: "",
+        email: "",
+        mobile: ""
+      },
+
+      // 角色id
+      currRoleId: -1
     };
   },
   created() {
     this.getUserList();
   },
   methods: {
-    // // 点击删除用户
-    showMessageBox(id){
-      this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-          center: true
-        }).then( async () => {
-          // console.log(id)
-          const res = await this.$http.delete(`users/${id}`)
-          // console.log(res)
-          const {meta: {msg, status}} = res.data
-          if(status == 200){
-            this.$message({
-            type: 'success',
-            message: msg
-          });
-          this.getUserList()
-          }
-          
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });
-        });
+    // 显示分配角色对话框
+    showRoleUserDia(user){
+      console.log(user)
+      this.dialogFormVisibleRole = true
     },
 
     // 修改用户状态状态
-    switchChange(id){
-      this.userlist.some((item) => {
-        if(item.id == id) {
-          this.$http.put(`users/${id}/state/${item.mg_state}`).then((res) => {
-            const {meta:{msg, status}} = res.data
-            if(status == 200){
-              this.$message.success(msg)
-              this.getUserList()
-            } else{
-              this.$message.warning(msg)
+    switchChange(id) {
+      this.userlist.some(item => {
+        if (item.id == id) {
+          this.$http.put(`users/${id}/state/${item.mg_state}`).then(res => {
+            const {
+              meta: { msg, status }
+            } = res.data;
+            if (status == 200) {
+              this.$message.success(msg);
+              this.getUserList();
+            } else {
+              this.$message.warning(msg);
             }
-          })
-          return true
+          });
+          return true;
         }
-      })
+      });
     },
 
     // 点击编辑显示编辑表单
-    showEditUserDia(user){
+    showEditUserDia(user) {
       // 获取user数据
       // console.log(user)
-      this.form = user
-      this.dialogFormVisibleEdit = true
+      this.form = user;
+      this.dialogFormVisibleEdit = true;
     },
 
     // 编辑用户信息
-    async editUserInfo(){
+    async editUserInfo() {
       // id	用户 id	不能为空 参数是url参数:id
       // email	邮箱	可以为空
       // mobile	手机号	可以为空
       // console.log(this.form)
-      const res = await this.$http.put(`users/${this.form.id}`,this.form)
+      const res = await this.$http.put(`users/${this.form.id}`, this.form);
       // console.log(res)
-      const {meta: {msg, status}} = res.data
-      if(status == 200){
-        this.dialogFormVisibleEdit = false
-        this.$message.success(msg)
+      const {
+        meta: { msg, status }
+      } = res.data;
+      if (status == 200) {
+        this.dialogFormVisibleEdit = false;
+        this.$message.success(msg);
       } else {
-        this.$message.warning(msg)
+        this.$message.warning(msg);
       }
     },
 
     // 点击显示添加用户表单
     showAddUserDia() {
-      this.dialogFormVisibleAdd = true
+      this.dialogFormVisibleAdd = true;
     },
-    
+
     // 添加用户
-    async  addUser(){
-      const res = await this.$http.post('users', this.form)
-      const {meta: {msg, status}} = res.data
-      if(status == 201){
-        // 1.表单数据清空 2.关闭表单 3.刷新列表数据 4.提示 
-        this.form = {}
-        this.dialogFormVisibleAdd = false
-        this.pagenum = 1
-        this.getUserList()
-        this.$message.success(msg)
+    async addUser() {
+      const res = await this.$http.post("users", this.form);
+      const {
+        meta: { msg, status }
+      } = res.data;
+      if (status == 201) {
+        // 1.表单数据清空 2.关闭表单 3.刷新列表数据 4.提示
+        this.form = {};
+        this.dialogFormVisibleAdd = false;
+        this.pagenum = 1;
+        this.getUserList();
+        this.$message.success(msg);
       } else {
-        this.$message.success(msg)
+        this.$message.success(msg);
       }
+    },
+
+    // 点击删除用户
+    showMessageBox(id) {
+      this.$confirm("此操作将永久删除该用户, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        center: true
+      })
+        .then(async () => {
+          // console.log(id)
+          const res = await this.$http.delete(`users/${id}`);
+          // console.log(res)
+          const {
+            meta: { msg, status }
+          } = res.data;
+          if (status == 200) {
+            this.$message({
+              type: "success",
+              message: msg
+            });
+            this.getUserList();
+          }
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
     },
 
     // 当搜索框内容改变了
     keywordSerach() {
       this.getUserList();
-      
     },
 
     // 用户选择页数大小的时候触发
