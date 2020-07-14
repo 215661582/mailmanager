@@ -33,13 +33,15 @@
         </el-table-column>
         <el-table-column label="用户状态" width="180">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+            <el-switch v-model="scope.row.mg_state" @change="switchChange(scope.row.id)" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作">
-          <el-button size="mini" plain type="primary" icon="el-icon-edit" circle></el-button>
-          <el-button size="mini" plain type="danger" icon="el-icon-delete" circle></el-button>
-          <el-button size="mini" plain type="success" icon="el-icon-check" circle></el-button>
+          <template slot-scope="scope">
+            <el-button size="mini" plain type="primary" icon="el-icon-edit" circle></el-button>
+            <el-button size="mini" plain type="danger" @click="showMessageBox(scope.row.id)"  icon="el-icon-delete" circle></el-button>
+            <el-button size="mini" plain type="success" icon="el-icon-check" circle></el-button>
+          </template>
         </el-table-column>
       </el-table>
     </template>
@@ -49,7 +51,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="currentPage"
-      :page-sizes="[2, 4]"
+      :page-sizes="[2, 4, 6, 8, 10]"
       :page-size="pagesize"
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
@@ -59,21 +61,21 @@
     <el-dialog title="添加用户" :visible.sync="dialogFormVisibleAdd">
       <el-form :model="form">
         <el-form-item label="用户名" label-width="100px">
-          <el-input v-model="form.name" autocomplete="off"></el-input>
+          <el-input v-model="form.username" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密 码" label-width="100px">
-          <el-input v-model="form.name" autocomplete="off"></el-input>
+          <el-input v-model="form.password" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="邮 箱" label-width="100px">
-          <el-input v-model="form.name" autocomplete="off"></el-input>
+          <el-input v-model="form.email" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="电 话" label-width="100px">
-          <el-input v-model="form.name" autocomplete="off"></el-input>
+          <el-input v-model="form.mobile" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleAdd = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisibleAdd = false">确 定</el-button>
+        <el-button type="primary" @click="addUser">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -110,6 +112,10 @@ export default {
 
       // 添加用户的表单数据
       form: {
+        username: '',
+        password: '',
+        email: '',
+        mobile: '',
 
       }
     };
@@ -118,15 +124,77 @@ export default {
     this.getUserList();
   },
   methods: {
-    // 点击添加用户
+    // // 点击删除用户
+    showMessageBox(id){
+      this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          center: true
+        }).then( async () => {
+          // console.log(id)
+          const res = await this.$http.delete(`users/${id}`)
+          // console.log(res)
+          const {meta: {msg, status}} = res.data
+          if(status == 200){
+            this.$message({
+            type: 'success',
+            message: msg
+          });
+          this.getUserList()
+          }
+          
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+    },
+
+    // 修改状态
+    switchChange(id){
+      this.userlist.some((item) => {
+        if(item.id == id) {
+          this.$http.put(`users/${id}/state/${item.mg_state}`).then((res) => {
+            const {meta:{msg, status}} = res.data
+            if(status == 200){
+              this.$message.success(msg)
+              this.getUserList()
+            } else{
+              this.$message.success(msg)
+            }
+          })
+          return true
+        }
+      })
+    },
+
+    // 点击显示添加用户表单
     showAddUserDia() {
       this.dialogFormVisibleAdd = true
+    },
+    
+    // 添加用户
+    async  addUser(){
+      const res = await this.$http.post('users', this.form)
+      const {meta: {msg, status}} = res.data
+      if(status == 201){
+        // 1.表单数据清空 2.关闭表单 3.刷新列表数据 4.提示 
+        this.form = {}
+        this.dialogFormVisibleAdd = false
+        this.pagenum = 1
+        this.getUserList()
+        this.$message.success(msg)
+      } else {
+        this.$message.success(msg)
+      }
     },
 
     // 当搜索框内容改变了
     keywordSerach() {
       this.getUserList();
-      this.query = "";
+      
     },
 
     // 用户选择页数大小的时候触发
@@ -173,7 +241,7 @@ export default {
   margin-bottom: 15px;
 }
 .box-card {
-  height: 100%;
+  height: 99.7%;
 }
 .inputSearch {
   width: 300px;
