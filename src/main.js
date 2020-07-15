@@ -14,6 +14,9 @@ import router from './router'
 // 引入 axios
 import MyHttpServer from '@/plugins/http.js'
 
+// 引入自定义面包屑组件
+import myBread from '@/components/cuscom/myBread.vue'
+
 // 引入 时间格式插件
 import moment from 'moment'
 
@@ -26,6 +29,9 @@ Vue.config.productionTip = false
 Vue.filter('dateFormat',(v) => {
   return moment(v).format('YYYY-MM-DD');
 })
+
+// 定义全局组件
+Vue.component(myBread.name, myBread)
 
 /* eslint-disable no-new */
 new Vue({
