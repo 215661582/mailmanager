@@ -24,7 +24,10 @@
     <el-container>
       <!-- 侧边导航栏 -->
       <el-aside class="home-aside" width="200px">
-        <el-menu :router="true" :unique-opened="true">
+        <el-menu 
+        :default-active="defaultActive"
+        :router="true" 
+        :unique-opened="true">
           <!-- 1 -->
           <el-submenu index="1">
             <template slot="title">
@@ -47,7 +50,7 @@
               <el-menu-item index="2-1">
                 <i class="el-icon-menu"></i>角色列表
               </el-menu-item>
-              <el-menu-item index="rights">
+              <el-menu-item index="/rights">
                 <i class="el-icon-menu"></i>权限列表
               </el-menu-item>
             </el-menu-item-group>
@@ -110,12 +113,21 @@
 
 <script>
 export default {
+  data() {
+    return {
+      defaultActive: "1",
+    }
+  },
   beforeCreate() {
     // 判断有没有 token 如果没有跳转回登录页面
     const token = localStorage.getItem("token");
     if (!token) {
       this.$router.push({ name: "login" });
     }
+  },
+  mounted() {
+    // 获取当前url 参数
+    this.defaultActive = this.$route.path
   },
   methods: {
     loginOut() {
