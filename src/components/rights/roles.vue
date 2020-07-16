@@ -56,7 +56,7 @@
             <!-- 分配按钮 -->
             <el-button
               size="mini"
-              @click="DistRights(scope.row)"
+              @click="showDistRights(scope.row)"
               plain
               type="success"
               icon="el-icon-setting"
@@ -69,10 +69,32 @@
 
     <!-- 分配权限对话框 -->
     <el-dialog title="修改权限" :visible.sync="dialogFormVisibleRights">
-      
+      <!-- 
+        树形结构
+        data -> 数据源[]
+        show-checkbox ->选择框
+        node-key 每个节点的唯一标识 通常是data数据源中key名id
+        default-expanded-keys 默认展开[要展开的节点的id]
+        default-checked-keys [要选择的节点的id]
+        props 配置项 {label， children}
+        label 节点的文字标题和children节点的子节点
+        值都来源于data绑定的数据源中的该数据的key名 'label' 和 'childred'
+      -->
+      <!-- :default-expanded-keys="[2, 3]"
+      :default-checked-keys="[5]" -->
+      <el-tree
+        :data="rightsDataList"
+        show-checkbox
+        node-key="id"
+        :default-expand-all="true"
+        :props="defaultProps"
+        :default-checked-keys="arrcheck"
+        ref="tree"
+      ></el-tree>
+
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleRights = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisibleRights = false">确 定</el-button>
+        <el-button type="primary" @click="setRoleRights">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -85,18 +107,76 @@ export default {
       // 角色列表
       rolesList: [],
 
-      dialogFormVisibleRights: false
+      dialogFormVisibleRights: false,
 
       // 分配权限所需数据
+      rightsDataList: [],
+      defaultProps: {
+        label: "authName",
+        childred: "children"
+      },
+      // 角色已有权限
+      arrcheck: [],
+      // 角色id
+      currRoleId: -1
     };
   },
   created() {
     this.getRolesList();
   },
   methods: {
-    // 分配权限
-    DistRights(rights) {
-      console.log(rights);
+    // 分配权限 - 角色授权
+    async setRoleRights(){
+      // roles/:roleId/rights
+      // :roleId	角色 ID	不能为空携带在url中
+      // rids	权限 ID 列表	以 , 分割的权限 ID 列表
+
+      // 获取权限 全选和半选 id
+      // getCheckedKeys  全选
+      // getHalfCheckedKeys  半选
+      var arr1 = []
+      var arr2 = []
+      arr1 = this.$refs.tree.getCheckedKeys()
+      arr2 = this.$refs.tree.getHalfCheckedKeys()
+      var arrRids = [...arr1,...arr2].join(',')
+      // console.log(arrRids)
+      // console.log([...arr1,...arr2])
+      
+      const res = await this.$http.post(`roles/${this.currRoleId}/rights`,{rids: arrRids})
+      // console.log(res)
+      if(res.data.meta.status == 200 ){
+        this.getRolesList()
+        this.dialogFormVisibleRights = false 
+        this.$message.success(res.data.meta.msg)
+      } else {
+        this.$message.success(res.data.meta.msg)
+      }
+    },
+
+    // 分配权限 - 打开对话框
+    async showDistRights(rights) {
+      // 当前角色id
+      this.currRoleId = rights.id
+
+      // 获取树形结构的数据
+      const res = await this.$http.get("rights/tree");
+      // console.log(rights);
+      this.rightsDataList = res.data.data;
+
+      // 获取当前啊角色的权限id
+      let arrtemp1 = [];
+      rights.children.forEach(item1 => {
+        // arrtemp1.push(item1.id);
+        item1.children.forEach(item2 => {
+          // arrtemp1.push(item2.id);
+          item2.children.forEach(item3 => {
+            arrtemp1.push(item3.id);
+          });
+        });
+      });
+      // console.log(arrtemp1)
+      this.arrcheck = arrtemp1
+
       this.dialogFormVisibleRights = true;
     },
 
