@@ -60,13 +60,13 @@ export default {
       menusList: []
     }
   },
-  beforeCreate() {
-    // 判断有没有 token 如果没有跳转回登录页面
-    const token = localStorage.getItem("token");
-    if (!token) {
-      this.$router.push({ name: "login" });
-    }
-  },
+  // beforeCreate() {
+  //   // 判断有没有 token 如果没有跳转回登录页面
+  //   const token = localStorage.getItem("token");
+  //   if (!token) {
+  //     this.$router.push({ name: "login" });
+  //   }
+  // },
   created() {
     // 获取当前url 参数
     this.defaultActive = this.$route.path.replace('/','')

@@ -18,7 +18,7 @@ Router.prototype.push = function push(location) {
 }
 
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/login',
@@ -49,3 +49,20 @@ export default new Router({
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  // console.log(to)
+  // console.log(from)
+  if(to.name === 'login'){
+    next()
+    return true
+  } else {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push({ name: "login" });
+    }
+    next()
+  }
+})
+
+export default router
