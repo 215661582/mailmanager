@@ -9,6 +9,7 @@ import Rights from '@/components/rights/rights.vue'
 import Roles from '@/components/rights/roles.vue'
 // 商品管理
 import GoodsList from '@/components/goods/goodsList.vue'
+import GoodsAdd from '@/components/goods/goodsAdd.vue'
 
 
 Vue.use(Router)
@@ -51,6 +52,11 @@ const router = new Router({
           path: '/goods',
           name: 'goods',
           component: GoodsList
+        },
+        {
+          path: '/goodsadd',
+          name: 'goodsadd',
+          component: GoodsAdd
         }
       ]
     }

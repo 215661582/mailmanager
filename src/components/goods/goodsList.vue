@@ -107,7 +107,7 @@ export default {
   methods: {
     // 点击添加商品
     showAddGoods(){
-
+      this.$router.push({ name: 'goodsadd' })
     },
 
     // 当搜索框内容改变了
