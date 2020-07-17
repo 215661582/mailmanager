@@ -52,25 +52,40 @@
         <el-tab-pane name="2" label="商品参数">
           <el-form-item :label="item1.attr_name" v-for="(item1, i) in arrDyparams" :key="i">
             <el-checkbox-group v-model="item1.attr_vals">
-              <el-checkbox
-                border
-                v-for="(item2, i) in item1.attr_vals"
-                :key="i"
-                :label="item2"
-              ></el-checkbox>
+              <el-checkbox border v-for="(item2, i) in item1.attr_vals" :key="i" :label="item2"></el-checkbox>
             </el-checkbox-group>
           </el-form-item>
         </el-tab-pane>
-        <el-tab-pane name="3" label="商品属性">商品属性</el-tab-pane>
-        <el-tab-pane name="4" label="商品图片">商品图片</el-tab-pane>
+        <el-tab-pane name="3" label="商品属性">
+          <el-form-item :label="item.attr_name" v-for="(item, i) in arrStaticparams" :key="i">
+            <el-input v-model="item.attr_vals"></el-input>
+          </el-form-item>
+        </el-tab-pane>
+        <el-tab-pane name="4" label="商品图片">
+          <el-upload
+            class="upload-demo"
+            action="http://localhost:8888/api/private/v1/upload"
+            :headers="headers"
+            :on-preview="handlePreview"
+            :on-remove="handleRemove"
+            :on-success="handleSuccess"
+            :file-list="fileList"
+            list-type="picture"
+          >
+            <el-button size="small" type="primary">点击上传</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+          </el-upload>
+        </el-tab-pane>
         <el-tab-pane name="5" label="商品内容">商品内容</el-tab-pane>
       </el-tabs>
     </el-form>
   </el-card>
 
-  <!-- <el-form-item label="名称">
-    <el-input v-model="formLabelAlign.name"></el-input>
-  </el-form-item>-->
+  <!-- 
+    <el-form-item label="名称">
+      <el-input v-model="formLabelAlign.name"></el-input>
+    </el-form-item>
+  -->
 </template>
 
 <script>
@@ -123,14 +138,35 @@ export default {
         value: "cat_id",
         childred: "childred"
       },
+      // 动态数据
+      arrDyparams: [],
+      // 静态数据
+      arrStaticparams: [],
 
-      arrDyparams: []
+      // 上传图片
+      fileList: [],
+      headers: {
+        Authorization: localStorage.getItem('token')
+      }
     };
   },
   created() {
     this.getGoodsCate();
   },
   methods: {
+    // 上传图片成功的钩子
+    handleSuccess(file){
+      console.log(file)
+    },
+    // 移除图片的钩子
+    handleRemove(file) {
+      console.log(file);
+    },
+    // 预览
+    handlePreview(file) {
+      console.log(file);
+    },
+
     // 点击不同的tab时
     async tabChange() {
       if (this.active === "2") {
@@ -151,6 +187,18 @@ export default {
           item.attr_vals =
             item.attr_vals.length === 0 ? [] : item.attr_vals.trim().split(",");
         });
+      }
+      if (this.active === "3") {
+        if (this.selectedOptions.length !== 3) {
+          this.$message.warning("请先选择商品的三级分类");
+          return;
+        }
+        // 获取数据
+        const result = await this.$http.get(
+          `categories/${this.selectedOptions[2]}/attributes?sel=only`
+        );
+        // console.log(result);
+        this.arrStaticparams = result.data.data;
       }
     },
 
