@@ -30,7 +30,7 @@
         </el-table-column>
 
         <el-table-column label="操作">
-          <template>
+          <template slot-scope="scope">
             <!-- 编辑按钮 -->
             <el-button
               size="mini"
@@ -46,6 +46,7 @@
               type="danger"
               icon="el-icon-delete"
               circle
+              @click="delGoods(scope.row.goods_id)"
             ></el-button>
             <!-- 分配按钮 -->
           </template>
@@ -105,6 +106,18 @@ export default {
     this.getGoodsList();
   },
   methods: {
+    // 删除商品
+    async delGoods(id){
+      if (confirm('请再次确认删除该商品')) {
+        // console.log(id)
+        const res = await this.$http.delete(`goods/${id}`)
+        // console.log(res)
+        if(res.data.meta.status == 200){
+          this.$message.success(res.data.meta.msg)
+          this.getGoodsList();
+        }
+      }
+    },
     // 点击添加商品
     showAddGoods(){
       this.$router.push({ name: 'goodsadd' })

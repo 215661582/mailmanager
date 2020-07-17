@@ -76,7 +76,10 @@
             <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
           </el-upload>
         </el-tab-pane>
-        <el-tab-pane name="5" label="商品内容">商品内容</el-tab-pane>
+        <el-tab-pane name="5" label="商品内容">
+          <el-button type="primary" @click="addGoods">点我-添加商品</el-button>
+          <quill-editor v-model="form.goods_introduce"></quill-editor>
+        </el-tab-pane>
       </el-tabs>
     </el-form>
   </el-card>
@@ -89,7 +92,16 @@
 </template>
 
 <script>
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+ 
+import { quillEditor } from 'vue-quill-editor'
+
 export default {
+  components: {
+    quillEditor
+  },
   data() {
     return {
       active: "1",
@@ -108,8 +120,8 @@ export default {
         goods_number: "",
         goods_weight: "",
         goods_introduce: "",
-        pics: "",
-        attrs: ""
+        pics: [],
+        attrs: []
       },
       // 表单校验
       rules: {
@@ -154,18 +166,53 @@ export default {
     this.getGoodsCate();
   },
   methods: {
+    // 添加商品
+    async addGoods(){
+      // 处理 商品分类
+      this.form.goods_cat = this.selectedOptions.join(',')
+
+      // 处理商品的参数
+      let arr1 = this.arrDyparams.map(item => {
+        return {attr_id: item.attr_id, attr_value: item.attr_vals}
+      })
+      let arr2 = this.arrStaticparams.map(item => {
+        return {attr_id: item.attr_id, attr_value: item.attr_vals}
+      })
+      this.form.attrs = [...arr1,...arr2]
+      // console.log(arr3)
+      // console.log(this.arrDyparams)
+      // console.log(this.arrStaticparams)
+      // console.log(this.form)
+      const res = await this.$http.post('goods',this.form)
+      // console.log(res)
+      if(res.data.meta.status == 201){
+        this.$message.success(res.data.meta.msg)
+        this.form = {}
+        this.$router.push({name: 'goods'})
+      } else {
+        this.$message.success(res.data.meta.msg)
+      }
+    },
     // 上传图片成功的钩子
     handleSuccess(file){
-      console.log(file)
+      // 获取临时图片路劲 data.tmp_path
+      // console.log(file)
+      this.form.pics.push({pic: file.data.tmp_path})
+      // console.log(this.form.pics)
     },
     // 移除图片的钩子
     handleRemove(file) {
-      console.log(file);
+      // 获取临时图片路劲 file.response.data.tmp_path
+      // console.log(file);
+      // 找到数组的索引删除
+      var index = this.form.pics.findIndex(item => {
+        return item.pic == file.response.data.tmp_path
+      })
+      this.form.pics.splice(index, 1)
+      // console.log(index)
+      // console.log(this.form.pics)
     },
-    // 预览
-    handlePreview(file) {
-      console.log(file);
-    },
+    handlePreview(){},
 
     // 点击不同的tab时
     async tabChange() {
@@ -224,5 +271,8 @@ export default {
 }
 .el-steps {
   margin-bottom: 15px;
+}
+.ql-editor {
+  min-height: 200px;
 }
 </style>
