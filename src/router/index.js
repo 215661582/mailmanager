@@ -12,6 +12,10 @@ import GoodsList from '@/components/goods/goodsList.vue'
 import GoodsAdd from '@/components/goods/goodsAdd.vue'
 import CateParams from '@/components/goods/cateParams.vue'
 import GoodsCate from '@/components/goods/goodsCate.vue'
+// 订单管理
+import OrdersList from '@/components/orders/ordersList.vue'
+// 数据统计
+import Reports from '@/components/reports/reports.vue'
 
 
 Vue.use(Router)
@@ -69,6 +73,16 @@ const router = new Router({
           path: '/categories',
           name: 'categories',
           component: GoodsCate
+        },
+        {
+          path: '/orders',
+          name: 'orders',
+          component: OrdersList
+        },
+        {
+          path: '/reports',
+          name: 'reports',
+          component: Reports
         },
       ]
     }
