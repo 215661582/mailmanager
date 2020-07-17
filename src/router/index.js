@@ -10,6 +10,8 @@ import Roles from '@/components/rights/roles.vue'
 // 商品管理
 import GoodsList from '@/components/goods/goodsList.vue'
 import GoodsAdd from '@/components/goods/goodsAdd.vue'
+import CateParams from '@/components/goods/cateParams.vue'
+import GoodsCate from '@/components/goods/goodsCate.vue'
 
 
 Vue.use(Router)
@@ -57,7 +59,17 @@ const router = new Router({
           path: '/goodsadd',
           name: 'goodsadd',
           component: GoodsAdd
-        }
+        },
+        {
+          path: '/params',
+          name: 'params',
+          component: CateParams
+        },
+        {
+          path: '/categories',
+          name: 'categories',
+          component: GoodsCate
+        },
       ]
     }
   ]
